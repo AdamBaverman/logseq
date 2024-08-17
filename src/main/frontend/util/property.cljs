@@ -15,6 +15,12 @@
             [frontend.util.cursor :as cursor]
             [frontend.util.block-content :as content]))
 
+(defn is-alias-page?
+  "Проверяет, является ли страница алиасом на основе наличия свойства :alias."
+  [page]
+  (let [properties (:block/properties page)]
+    (contains? properties :alias)))
+
 (defn hidden-properties
   "These are properties hidden from user including built-in ones and ones
   configured by user"

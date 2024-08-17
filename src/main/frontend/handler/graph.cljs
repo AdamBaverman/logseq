@@ -5,6 +5,7 @@
             [frontend.db :as db]
             [logseq.db.default :as default-db]
             [frontend.state :as state]
+            [frontend.util.property :refer [is-alias-page?]]
             [frontend.util :as util]))
 
 (defn- build-links
@@ -96,11 +97,12 @@
             pages-after-journal-filter (if-not journal?
                                          (remove :block/journal? full-pages)
                                          full-pages)
-
-           pages-after-exclude-filter (cond->> pages-after-journal-filter
-                                        (not excluded-pages?)
-                                        (remove (fn [p] (=  true (:exclude-from-graph-view (:block/properties p))))))
-
+            pages-after-exclude-filter (cond->> pages-after-journal-filter
+                                         (not excluded-pages?)
+                                         (remove (fn [p] (= true (:exclude-from-graph-view (:block/properties p)))))
+                                         ;; Исключаем алиасы из списка узлов
+                                         true
+                                         (remove is-alias-page?))
             links (concat (seq relation)
                           (seq tagged-pages)
                           (seq namespaces))
@@ -166,7 +168,9 @@
                         (map first mentioned-pages)
                         tags)
                        (remove nil?)
-                       (distinct))
+                       (distinct)
+                       ;; Исключаем алиасы из списка узлов
+                       (remove #(is-alias-page? (db/entity [:block/name %]))))
             nodes (build-nodes dark? page links (set tags) nodes namespaces)
             full-pages (db/get-all-pages repo)
             all-pages (map db/get-original-name full-pages)
