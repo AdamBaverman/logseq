@@ -14,7 +14,6 @@
             [frontend.state :as state]
             [frontend.ui :as ui]
             [frontend.util :as util]
-            [frontend.util.property :refer [is-alias-page?]]
             [rum.core :as rum]
             [frontend.modules.outliner.tree :as tree]))
 
@@ -103,8 +102,6 @@
                      (-> (db/get-page-referenced-blocks (:block/name e))
                          db-utils/group-by-page)
                      (db/get-block-referenced-blocks block-id))
-        ;; Фильтрация алиасов
-        ref-blocks (remove #(is-alias-page? (db/entity [:block/name (:block/page %)])) ref-blocks)
         ref-hiccup (block/->hiccup ref-blocks
                                    {:id (str block-id)
                                     :ref? true
@@ -205,8 +202,6 @@
           filters-atom (get state ::filters)
           filter-state (rum/react filters-atom)
           ref-blocks (db/get-page-referenced-blocks page-name)
-          ;; Фильтрация алиасов
-          ref-blocks (remove #(is-alias-page? (db/entity [:block/name (:block/page %)])) ref-blocks)
           page-id (:db/id (db/entity repo [:block/name page-name]))
           aliases (db/page-alias-set repo page-name)
           aliases-exclude-self (set (remove #{page-id} aliases))
