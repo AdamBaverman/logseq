@@ -63,3 +63,5 @@ deps/shui/.lsp
 deps/shui/.lsp-cache
 deps/shui/.clj-kondo
 deps/shui/shui-graph/logseq/bak
+.clj-kondo/
+.lsp/
